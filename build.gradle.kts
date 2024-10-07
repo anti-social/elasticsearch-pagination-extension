@@ -8,8 +8,8 @@ plugins {
 }
 
 configure<org.elasticsearch.gradle.plugin.PluginPropertiesExtension> {
-    name = "rescore-grouping-mixup"
-    description = "Adds rescorer for mixing up search hits inside their groups."
+    name = project.name
+    description = "Adds pagination extension to paginate results after multiple extensions."
     classname = "company.evo.elasticsearch.plugin.PaginationPlugin"
     version = Versions.plugin
 }
