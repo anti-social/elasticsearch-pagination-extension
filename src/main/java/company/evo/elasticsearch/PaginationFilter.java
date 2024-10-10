@@ -56,10 +56,10 @@ public class PaginationFilter implements ActionFilter {
         }
 
         final var from = Math.max(source.from(), 0);
-        final var size = Math.max(source.size(), 0);
+        final var size = source.size() < 0 ? 10 : source.size();
         final var searchExt = source.ext().stream()
-                .filter(ext -> ext.getWriteableName().equals(PaginationExtBuilder.NAME))
-                .findFirst();
+            .filter(ext -> ext.getWriteableName().equals(PaginationExtBuilder.NAME))
+            .findFirst();
         if (searchExt.isEmpty()) {
             chain.proceed(task, action, request, listener);
             return;

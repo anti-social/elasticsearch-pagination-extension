@@ -36,6 +36,28 @@ public class PaginationExtFilterIT extends ESIntegTestCase {
         assertHitCount(resp, 0);
     }
 
+    public void testPaginationDefaults() throws IOException {
+        createIndex(NUMBER_OF_SHARDS);
+        populateIndex();
+
+        // Just test double pagination
+        var resp = client().prepareSearch()
+            .setSource(
+                SearchSourceBuilder.searchSource()
+                    .query(
+                        QueryBuilders.functionScoreQuery(
+                            ScoreFunctionBuilders.scriptFunction(
+                                new Script("return doc['rank'].value;")
+                            )
+                        )
+                    )
+                    .ext(List.of(new PaginationExtBuilder()))
+            )
+            .get();
+        assertHitCount(resp, 6);
+        assertOrderedSearchHits(resp, "1", "2", "3", "4", "5", "6");
+    }
+
     public void testPagination() throws IOException {
         createIndex(NUMBER_OF_SHARDS);
         populateIndex();
