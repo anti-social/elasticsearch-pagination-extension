@@ -7,20 +7,21 @@ import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.test.ESIntegTestCase;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
 
 import static org.elasticsearch.cluster.metadata.IndexMetadata.SETTING_NUMBER_OF_SHARDS;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertAcked;
-import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertHitCount;
-import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertOrderedSearchHits;
+import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.*;
 
 @ESIntegTestCase.ClusterScope(scope = ESIntegTestCase.Scope.SUITE)
 public class PaginationExtFilterIT extends ESIntegTestCase {
     private final static int NUMBER_OF_SHARDS = 2;
 
+
+    @Test
     public void testEmpty() throws IOException {
         createIndex(NUMBER_OF_SHARDS);
 
@@ -36,6 +37,7 @@ public class PaginationExtFilterIT extends ESIntegTestCase {
         assertHitCount(resp, 0);
     }
 
+    @Test
     public void testPaginationDefaults() throws IOException {
         createIndex(NUMBER_OF_SHARDS);
         populateIndex();
@@ -58,6 +60,7 @@ public class PaginationExtFilterIT extends ESIntegTestCase {
         assertOrderedSearchHits(resp, "1", "2", "3", "4", "5", "6");
     }
 
+    @Test
     public void testPagination() throws IOException {
         createIndex(NUMBER_OF_SHARDS);
         populateIndex();
@@ -79,7 +82,54 @@ public class PaginationExtFilterIT extends ESIntegTestCase {
             )
             .get();
         assertHitCount(resp, 6);
-        assertOrderedSearchHits(resp, "5", "6");
+        assertOrderedSearchHits(resp, "3", "4", "5", "6");
+    }
+
+    public void testPaginationFromMoreThenTotalHintsSize() throws IOException {
+        createIndex(NUMBER_OF_SHARDS);
+        populateIndex();
+
+        // Just test double pagination
+        var resp = client().prepareSearch()
+                .setSource(
+                        SearchSourceBuilder.searchSource()
+                                .query(
+                                        QueryBuilders.functionScoreQuery(
+                                                ScoreFunctionBuilders.scriptFunction(
+                                                        new Script("return doc['rank'].value;")
+                                                )
+                                        )
+                                )
+                                .from(100)
+                                .size(4)
+                )
+                .get();
+        assertHitCount(resp, 6);
+        assertOrderedSearchHits(resp);
+    }
+
+    public void testPaginationFromMoreThenTotalHintsSizeWithPlugin() throws IOException {
+        createIndex(NUMBER_OF_SHARDS);
+        populateIndex();
+
+        // Just test double pagination
+        var resp = client().prepareSearch()
+                .setSource(
+                        SearchSourceBuilder.searchSource()
+                                .query(
+                                        QueryBuilders.functionScoreQuery(
+                                                ScoreFunctionBuilders.scriptFunction(
+                                                        new Script("return doc['rank'].value;")
+                                                )
+                                        )
+                                )
+                                .from(100)
+                                .size(4)
+                                .ext(List.of(new PaginationExtBuilder()))
+                )
+                .get();
+        assertHitCount(resp, 6);
+        assertOrderedSearchHits(resp);
     }
 
     private void createIndex(int numShards) throws IOException {

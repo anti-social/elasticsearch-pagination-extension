@@ -73,9 +73,10 @@ public class PaginationFilter implements ActionFilter {
             if (hits.length == 0) {
                 return response;
             }
+            var patchedFrom = hits.length > from ? 0 : from;
 
             final var pageHits = Arrays.copyOfRange(
-                    hits, from, Math.min(from + size, hits.length)
+                    hits, patchedFrom, Math.min(patchedFrom + size, hits.length)
             );
 
             final var rescoredResponse = new InternalSearchResponse(
