@@ -91,17 +91,17 @@ public class PaginationExtFilterIT extends ESIntegTestCase {
 
         // Just test double pagination
         var resp = client().prepareSearch()
-                .setSource(
-                        SearchSourceBuilder.searchSource()
-                                .query(
-                                        QueryBuilders.functionScoreQuery(
-                                                ScoreFunctionBuilders.scriptFunction(
-                                                        new Script("return doc['rank'].value;")
-                                                )
-                                        )
-                                )
-                                .from(100)
-                                .size(4)
+            .setSource(
+                 SearchSourceBuilder.searchSource()
+                    .query(
+                        QueryBuilders.functionScoreQuery(
+                            ScoreFunctionBuilders.scriptFunction(
+                                new Script("return doc['rank'].value;")
+                            )
+                        )
+                    )
+                    .from(100)
+                    .size(4)
                 )
                 .get();
         assertHitCount(resp, 6);
@@ -115,17 +115,17 @@ public class PaginationExtFilterIT extends ESIntegTestCase {
         // Just test double pagination
         var resp = client().prepareSearch()
                 .setSource(
-                        SearchSourceBuilder.searchSource()
-                                .query(
-                                        QueryBuilders.functionScoreQuery(
-                                                ScoreFunctionBuilders.scriptFunction(
-                                                        new Script("return doc['rank'].value;")
-                                                )
-                                        )
-                                )
-                                .from(100)
-                                .size(4)
-                                .ext(List.of(new PaginationExtBuilder()))
+                    SearchSourceBuilder.searchSource()
+                       .query(
+                           QueryBuilders.functionScoreQuery(
+                               ScoreFunctionBuilders.scriptFunction(
+                                   new Script("return doc['rank'].value;")
+                               )
+                           )
+                       )
+                       .from(100)
+                       .size(4)
+                       .ext(List.of(new PaginationExtBuilder()))
                 )
                 .get();
         assertHitCount(resp, 6);
