@@ -40,7 +40,6 @@ public class PaginationExtFilterIT extends ESIntegTestCase {
         createIndex(NUMBER_OF_SHARDS);
         populateIndex();
 
-        // Just test double pagination
         var resp = client().prepareSearch()
             .setSource(
                 SearchSourceBuilder.searchSource()
@@ -62,7 +61,6 @@ public class PaginationExtFilterIT extends ESIntegTestCase {
         createIndex(NUMBER_OF_SHARDS);
         populateIndex();
 
-        // Just test double pagination
         var resp = client().prepareSearch()
             .setSource(
                 SearchSourceBuilder.searchSource()
@@ -79,7 +77,30 @@ public class PaginationExtFilterIT extends ESIntegTestCase {
             )
             .get();
         assertHitCount(resp, 6);
-        assertOrderedSearchHits(resp, "5", "6");
+        assertOrderedSearchHits(resp, "3", "4", "5", "6");
+    }
+
+    public void testPaginationOverflow() throws IOException {
+        createIndex(NUMBER_OF_SHARDS);
+        populateIndex();
+
+        var resp = client().prepareSearch()
+            .setSource(
+                SearchSourceBuilder.searchSource()
+                    .query(
+                        QueryBuilders.functionScoreQuery(
+                            ScoreFunctionBuilders.scriptFunction(
+                                new Script("return doc['rank'].value;")
+                            )
+                        )
+                    )
+                    .from(6)
+                    .size(4)
+                    .ext(List.of(new PaginationExtBuilder()))
+                )
+                .get();
+        assertHitCount(resp, 6);
+        assertOrderedSearchHits(resp);
     }
 
     private void createIndex(int numShards) throws IOException {

@@ -65,6 +65,10 @@ public class PaginationFilter implements ActionFilter {
             return;
         }
 
+        // To work without other plugins
+        source.from(0);
+        source.size(from + size);
+
         @SuppressWarnings("unchecked")
         final ActionListener<Response> rescoreListener = ActionListener.map(listener, (response) -> {
             final var resp = (SearchResponse) response;
