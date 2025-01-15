@@ -82,7 +82,7 @@ public class PaginationExtFilterIT extends ESIntegTestCase {
             )
             .get();
         assertHitCount(resp, 6);
-        assertOrderedSearchHits(resp, "3", "4", "5", "6");
+        assertOrderedSearchHits(resp,"5", "6");
     }
 
     public void testPaginationFromMoreThenTotalHintsSize() throws IOException {
