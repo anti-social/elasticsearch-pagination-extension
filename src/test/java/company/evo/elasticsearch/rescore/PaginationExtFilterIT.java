@@ -72,12 +72,30 @@ public class PaginationExtFilterIT extends ESIntegTestCase {
                         )
                     )
                     .from(2)
-                    .size(4)
+                    .size(3)
                     .ext(List.of(new PaginationExtBuilder()))
             )
             .get();
         assertHitCount(resp, 6);
-        assertOrderedSearchHits(resp, "3", "4", "5", "6");
+        assertOrderedSearchHits(resp, "3", "4", "5");
+
+        resp = client().prepareSearch()
+            .setSource(
+                SearchSourceBuilder.searchSource()
+                    .query(
+                        QueryBuilders.functionScoreQuery(
+                            ScoreFunctionBuilders.scriptFunction(
+                                new Script("return doc['rank'].value;")
+                            )
+                        )
+                    )
+                    .from(3)
+                    .size(5)
+                    .ext(List.of(new PaginationExtBuilder()))
+            )
+            .get();
+        assertHitCount(resp, 6);
+        assertOrderedSearchHits(resp, "4", "5", "6");
     }
 
     public void testPaginationOverflow() throws IOException {
@@ -94,7 +112,7 @@ public class PaginationExtFilterIT extends ESIntegTestCase {
                             )
                         )
                     )
-                    .from(6)
+                    .from(7)
                     .size(4)
                     .ext(List.of(new PaginationExtBuilder()))
                 )

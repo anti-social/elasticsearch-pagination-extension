@@ -10,6 +10,7 @@ import org.elasticsearch.action.support.ActionFilter;
 import org.elasticsearch.action.support.ActionFilterChain;
 import org.elasticsearch.common.settings.Setting;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.InternalAggregations;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -78,9 +79,11 @@ public class PaginationFilter implements ActionFilter {
                 return response;
             }
 
-            final var pageHits = Arrays.copyOfRange(
-                hits, from, Math.min(from + size, hits.length)
-            );
+            final var pageHits = hits.length > from ? Arrays.copyOfRange(
+                hits,
+                from,
+                Math.min(from + size, hits.length)
+            ) : new SearchHit[0];
 
             final var rescoredResponse = new InternalSearchResponse(
                 new SearchHits(pageHits, searchHits.getTotalHits(), searchHits.getMaxScore()),
