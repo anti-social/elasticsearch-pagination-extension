@@ -38,11 +38,11 @@ public class PaginationFilter implements ActionFilter {
 
     @Override
     public <Request extends ActionRequest, Response extends ActionResponse> void apply(
-            Task task,
-            String action,
-            Request request,
-            ActionListener<Response> listener,
-            ActionFilterChain<Request, Response> chain
+        Task task,
+        String action,
+        Request request,
+        ActionListener<Response> listener,
+        ActionFilterChain<Request, Response> chain
     ) {
         if (!SearchAction.INSTANCE.name().equals(action)) {
             chain.proceed(task, action, request, listener);
@@ -79,27 +79,27 @@ public class PaginationFilter implements ActionFilter {
             }
 
             final var pageHits = Arrays.copyOfRange(
-                    hits, from, Math.min(from + size, hits.length)
+                hits, from, Math.min(from + size, hits.length)
             );
 
             final var rescoredResponse = new InternalSearchResponse(
-                    new SearchHits(pageHits, searchHits.getTotalHits(), searchHits.getMaxScore()),
-                    (InternalAggregations) resp.getAggregations(),
-                    resp.getSuggest(),
-                    new SearchProfileShardResults(resp.getProfileResults()),
-                    resp.isTimedOut(),
-                    resp.isTerminatedEarly(),
-                    resp.getNumReducePhases()
+                new SearchHits(pageHits, searchHits.getTotalHits(), searchHits.getMaxScore()),
+                (InternalAggregations) resp.getAggregations(),
+                resp.getSuggest(),
+                new SearchProfileShardResults(resp.getProfileResults()),
+                resp.isTimedOut(),
+                resp.isTerminatedEarly(),
+                resp.getNumReducePhases()
             );
             return (Response) new SearchResponse(
-                    rescoredResponse,
-                    resp.getScrollId(),
-                    resp.getTotalShards(),
-                    resp.getSuccessfulShards(),
-                    resp.getSkippedShards(),
-                    resp.getTook().millis(),
-                    resp.getShardFailures(),
-                    resp.getClusters()
+                rescoredResponse,
+                resp.getScrollId(),
+                resp.getTotalShards(),
+                resp.getSuccessfulShards(),
+                resp.getSkippedShards(),
+                resp.getTook().millis(),
+                resp.getShardFailures(),
+                resp.getClusters()
             );
         });
 
